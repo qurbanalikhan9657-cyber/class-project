@@ -11,6 +11,9 @@ class DatabaseHelper {
   DatabaseHelper._init();
 
   Future<Database> get database async {
+    if (kIsWeb) {
+      throw UnsupportedError('SQLite database is not supported on web. Use web storage.');
+    }
     if (_database != null) return _database!;
     _database = await _initDB('taskmaster_pro.db');
     return _database!;
@@ -24,9 +27,7 @@ class DatabaseHelper {
     }
 
     String dbPath;
-    if (kIsWeb) {
-      dbPath = filePath;
-    } else if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
       final docDir = await getApplicationDocumentsDirectory();
       dbPath = p.join(docDir.path, 'TaskMasterPro', filePath);
       final dir = Directory(p.dirname(dbPath));
